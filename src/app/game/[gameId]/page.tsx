@@ -136,7 +136,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
     const fetchColonyData = async () => {
       try {
-        const response = await fetch(`http://rpc.datenleiche.io:5000/api/colonies/`, {
+        const response = await fetch(`https://rpc.datenleiche.io:5000/api/colonies/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
