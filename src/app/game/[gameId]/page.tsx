@@ -78,7 +78,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://rpc.datenleiche.io:5000/api/protected', {
+        const response = await fetch('https://rpc.datenleiche.io:5000/api/protected', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -96,7 +96,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
     const fetchGameData = async () => {
       try {
-        const response = await fetch(`http://rpc.datenleiche.io:5000/api/games/${resolvedParams.gameId}`, {
+        const response = await fetch(`https://rpc.datenleiche.io:5000/api/games/${resolvedParams.gameId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -117,7 +117,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
     const fetchSolarSystem = async () => {
       try {
         const systemID = 13355;
-        const response = await fetch(`http://rpc.datenleiche.io:5000/api/solar-system/${systemID}`, {
+        const response = await fetch(`https://rpc.datenleiche.io:5000/api/solar-system/${systemID}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

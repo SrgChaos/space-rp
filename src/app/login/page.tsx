@@ -22,7 +22,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://rpc.datenleiche.io:5000/api/login', {
+      const response = await fetch('https://rpc.datenleiche.io:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

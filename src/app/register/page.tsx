@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const response = await fetch('http://rpc.datenleiche.io:5000/api/register', {
+      const response = await fetch('https://rpc.datenleiche.io:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -21,7 +21,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://rpc.datenleiche.io:5000/api/protected', {
+        const response = await fetch('https://rpc.datenleiche.io:5000/api/protected', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
