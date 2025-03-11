@@ -75,6 +75,10 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   const router = useRouter();
   const resolvedParams = React.use(params);
 
+  var gameDataLoaded = false;
+  var solarSystemLoaded = false;
+  var colonyDataLoaded = false;
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -108,6 +112,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
         const data = await response.json();
         setGameData(data);
+        gameDataLoaded = true;
       } catch (error) {
         setError('Error loading game data');
         console.error('Error fetching game data:', error);
@@ -128,6 +133,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
         }
         const systemData = await response.json();
         setSolarSystemData(systemData);
+        solarSystemLoaded = true;
       } catch (error) {
         setError('Error loading System Data');
         console.error('Error loading System Data', error);
@@ -148,8 +154,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
         const colonyData = await response.json();
         setColonyData(colonyData);
-        console.log("colony data: ");
-        console.log(colonyData);
+        colonyDataLoaded = true;
       } catch(error) {
         setError('Error loading System Data');
         console.error('Error loading System Data', error);
@@ -183,7 +188,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
     return <div>Loading...</div>;
   }
 
-  if(gameData && colonyData && solarSystemData){
+  if(gameDataLoaded && colonyDataLoaded && solarSystemLoaded){
     return (
       /*<div className="min-h-screen p-8 bg-gray-100">
         <Card>
