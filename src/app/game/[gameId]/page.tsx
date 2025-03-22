@@ -124,6 +124,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
         const data = await response.json();
         setGameData(data);
+        console.log(gameData);
         setGameDataLoaded(true);
       } catch (error) {
         setError('Error loading game data');
