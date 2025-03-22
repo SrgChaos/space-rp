@@ -244,14 +244,22 @@ const GameUIOverlay = ( {colonies}) => {
 
                         const resourcesData = colony.details.resources;
                         const mineralsData = colony.details.minerals;
+                        const mines = colony.details.installations.find(inst => inst.name === "Mine")?.amount || 0;
+                        const industry = colony.details.installations.find(inst => inst.name === "Conventional Industry")?.amount || 0;
                       
                         const materialsTable = mineralsData.map(mineral => {
+                          const productionRate = ((mines * 10) + (industry * 1.5)) * mineral.accessibility;
+
+                          const depletionYears = productionRate > 0 ? mineral.amount / productionRate : 0;
+
                           return {
                             id: mineral.materialId,
                             name: mineral.materialName,
                             stockpile: resourcesData[mineral.materialName.toLowerCase()] || 0,
                             amount: mineral.amount,
-                            accessibility: mineral.accessibility
+                            accessibility: mineral.accessibility,
+                            productionRate: productionRate,
+                            depletionYears: depletionYears
                           };
                         });
 
@@ -263,6 +271,15 @@ const GameUIOverlay = ( {colonies}) => {
                           return "bg-red-500";
                         };
 
+                        const getDepletionColor = (years) => {
+                          if (years === 0) return "text-gray-400";
+                          if (years > 100) return "text-green-600";
+                          if (years > 50) return "text-green-500";
+                          if (years > 20) return "text-yellow-600";
+                          if (years > 10) return "text-yellow-500";
+                          return "text-red-500";
+                        }
+
                         return (
                           <div className="w-full">
                             <table className="w-full text-sm">
@@ -272,6 +289,8 @@ const GameUIOverlay = ( {colonies}) => {
                                   <th className="text-right py-2 px-1">Stockpile</th>
                                   <th className="text-right py-2 px-1">Deposit</th>
                                   <th className="text-center py-2 py-1">Access</th>
+                                  <th className="text-right py-2 px-1">Production</th>
+                                  <th className="text-right py-2 px-1">Depletion (yrs)</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -279,17 +298,25 @@ const GameUIOverlay = ( {colonies}) => {
                                   <tr key={material.id} className="border-b hover:bg:gray-50">
                                     <td className="py-2 px-1">{material.name}</td>
                                     <td className="text-right py-2 px-1">
-                                      {parseFloat(material.stockpile).toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                      {parseFloat(material.stockpile).toLocaleString(undefined, {maximumFractionDigits: 0})}
                                     </td>
                                     <td className="text-right py-2 px-1">
-                                      {parseFloat(material.amount).toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                      {parseFloat(material.amount).toLocaleString(undefined, {maximumFractionDigits: 0})}
                                     </td>
                                     <td className="text-center py-2 px-1">
                                       <span
-                                        className={`inline-block w-12 text-xs text-white rounded py-1 ${getAccessibilityColor(material.accessibility)}`}
+                                        className={`inline-block w-12 text-xs text-black rounded py-1 ${getAccessibilityColor(material.accessibility)}`}
                                       >
                                         {(parseFloat(material.accessibility) * 100).toFixed(0)}%
                                       </span>
+                                    </td>
+                                    <td className="text-right py-2 px-1">
+                                      {material.productionRate.toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                    </td>
+                                    <td className={`text-right py-2 px-1 ${getDepletionColor(material.depletionYears)}`}>
+                                      {material.productionRate > 0 
+                                        ? material.depletionYears.toLocaleString(undefined, {maximumFractionDigits: 0}) 
+                                        : "∞"}
                                     </td>
                                   </tr>
                                 ))}

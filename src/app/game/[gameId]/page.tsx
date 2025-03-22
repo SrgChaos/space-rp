@@ -87,9 +87,9 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   const router = useRouter();
   const resolvedParams = React.use(params);
 
-  let gameDataLoaded = false;
-  let solarSystemLoaded = false;
-  let colonyDataLoaded = false;
+  const [gameDataLoaded, setGameDataLoaded] = useState(false);
+  const [solarSystemLoaded, setSolarSystemLoaded] = useState(false);
+  const [colonyDataLoaded, setColonyDataLoaded] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -124,7 +124,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
         const data = await response.json();
         setGameData(data);
-        gameDataLoaded = true;
+        setGameDataLoaded(true);
       } catch (error) {
         setError('Error loading game data');
         console.error('Error fetching game data:', error);
@@ -145,7 +145,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
         }
         const systemData = await response.json();
         setSolarSystemData(systemData);
-        solarSystemLoaded = true;
+        setSolarSystemLoaded(true);
       } catch (error) {
         setError('Error loading System Data');
         console.error('Error loading System Data', error);
@@ -166,7 +166,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
         const colonyData = await response.json();
         setColonyData(colonyData);
-        colonyDataLoaded = true;
+        setColonyDataLoaded(true);
       } catch(error) {
         setError('Error loading System Data');
         console.error('Error loading System Data', error);
@@ -196,33 +196,14 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
     );
   }
 
-  if (!gameData) {
-    return <div>Loading...</div>;
+  if (!gameDataLoaded || !solarSystemLoaded || !colonyDataLoaded) {
+    return <div className="flex items-center justify-center h-screen">Loading game data...</div>;
   }
 
-  if(gameDataLoaded && colonyDataLoaded && solarSystemLoaded){
     return (
-      /*<div className="min-h-screen p-8 bg-gray-100">
-        <Card>
-          <CardHeader>
-            <CardTitle>{gameData.RaceTitle}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p>Game State: true</p>
-              <div className="grid grid-cols-3 gap-2 max-w-[300px] mx-auto">
-              </div>
-              <Button onClick={() => router.push('/dashboard')} className="mt-4">
-                Back to Dashboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>*/
       <div className="relative">
         <SolarSystem data={solarSystemData}/>
         <GameUIOverlay colonies={colonyData}/>
       </div>
     );
-  }
 }
