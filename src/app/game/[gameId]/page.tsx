@@ -87,9 +87,9 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   const router = useRouter();
   const resolvedParams = React.use(params);
 
-  const gameDataLoaded = false;
-  const solarSystemLoaded = false;
-  const colonyDataLoaded = false;
+  let gameDataLoaded = false;
+  let solarSystemLoaded = false;
+  let colonyDataLoaded = false;
 
   useEffect(() => {
     const fetchUserData = async () => {
