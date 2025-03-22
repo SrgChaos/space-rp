@@ -101,24 +101,6 @@ const GameUIOverlay = ( {colonies}) => {
       {/* Bottom Center Buttons */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 pointer-events-auto">
         <Button 
-          onClick={() => toggleWindow('planets')}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          Planets
-        </Button>
-        <Button 
-          onClick={() => toggleWindow('fleet')}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          Fleet
-        </Button>
-        <Button 
-          onClick={() => toggleWindow('resources')}
-          className="bg-purple-600 hover:bg-purple-700"
-        >
-          Resources
-        </Button>
-        <Button 
           onClick={() => toggleWindow('colonies')}
           className="bg-amber-600 hover:bg-amber-700"
         >
