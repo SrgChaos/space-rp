@@ -239,46 +239,62 @@ const GameUIOverlay = ( {colonies}) => {
                     {/* Resources Tab Content */}
                     <TabsContent value="resources" className="overflow-y-auto pr-2" style={{ maxHeight: "320px" }}>
                       {(() => {
-                        const colonyData = colonies.find(c => c.PopulationID === selectedColony).details.resources;
-                        console.log("Colony " + colonyData);
+                        const colony = colonies.find(c => c.PopulationID === selectedColony);
+                        console.log("Colony " + colony);
+
+                        const resourcesData = colony.details.resources;
+                        const mineralsData = colony.details.minerals;
+                      
+                        const materialsTable = mineralsData.map(mineral => {
+                          return {
+                            id: mineral.materialId,
+                            name: mineral.materialName,
+                            stockpile: resourcesData[mineral.materialName.toLowerCase()] || 0,
+                            amount: mineral.amount,
+                            accessibility: mineral.accessibility
+                          };
+                        });
+
+                        const getAccessibilityColor = (accessibility) => {
+                          const value = parseFloat(accessibility) || 0;
+                          if (value >= 0.9) return "bg-green-500";
+                          if (value >= 0.7) return "bg-green-300";
+                          if (value >= 0.4) return "bg-yellow-300";
+                          return "bg-red-500";
+                        };
+
                         return (
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Duranium:</span>
-                              <span>{colonyData.duranium}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Neutronium:</span>
-                              <span>{colonyData.neutronium}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Corbomite:</span>
-                              <span>{colonyData.corbomite}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Tritanium:</span>
-                              <span>{colonyData.tritanium}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Boronide:</span>
-                              <span>{colonyData.boronide}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Mercassium:</span>
-                              <span>{colonyData.mercassium}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Vendarite:</span>
-                              <span>{colonyData.vendarite}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Sorium:</span>
-                              <span>{colonyData.sorium}</span>
-                            </div>
-                            <div className="flex justify-between border-b pb-1">
-                              <span>Uridium:</span>
-                              <span>{colonyData.uridium}</span>
-                            </div>
+                          <div className="w-full">
+                            <table className="w-full text-sm">
+                              <thead className="bg-gray-100 sticky top-0">
+                                <tr>
+                                  <th className="text-left py-2 px-1">Mineral</th>
+                                  <th className="text-right py-2 px-1">Stockpile</th>
+                                  <th className="text-right py-2 px-1">Deposit</th>
+                                  <th className="text-center py-2 py-1">Access</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {materialsTable.map((material) => (
+                                  <tr key={material.id} className="border-b hover:bg:gray-50">
+                                    <td className="py-2 px-1">{material.name}</td>
+                                    <td className="text-right py-2 px-1">
+                                      {parseFloat(material.stockpile).toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                    </td>
+                                    <td className="text-right py-2 px-1">
+                                      {parseFloat(material.amount).toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                    </td>
+                                    <td className="text-center py-2 px-1">
+                                      <span
+                                        className={`inline-block w-12 text-xs text-white rounded py-1 ${getAccessibilityColor(material.accessibility)}`}
+                                      >
+                                        {(parseFloat(material.accessibility) * 100).toFixed(0)}%
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         );
                       })()}

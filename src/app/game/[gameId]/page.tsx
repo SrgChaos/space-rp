@@ -48,6 +48,17 @@ interface ColonyResourceData {
   Gallicite: string;
 }
 
+interface Mineral {
+  materialId: number;
+  materialName: string;
+  amount: number;
+  accessibility: number;
+}
+
+interface ColonyMinerals {
+  minerals: Mineral[];
+}
+
 interface ColonyInstallation {
   id: number;
   name: string;
@@ -57,6 +68,7 @@ interface ColonyInstallation {
 interface ColonyDetailsData {
   resources: ColonyResourceData;
   installations: ColonyInstallation[];
+  minerals: ColonyMinerals;
 }
 
 interface Colony {
