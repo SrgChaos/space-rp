@@ -78,10 +78,17 @@ interface Colony {
   details: ColonyDetailsData;
 }
 
+interface System {
+  SystemID: number;
+  Name: string;
+}
+
 export default function GamePage({ params }: { params: Promise<{ gameId: string }> }) {
   const { token, logout } = useAuth();
   const [gameData, setGameData] = useState<GameData | null>(null);
   const [error, setError] = useState('');
+  const [systems, setSystems] = useState<System[]>([]);
+  const [selectedSystem, setSelectedSystem] = useState<number | null>(null);
   const [solarSystemData, setSolarSystemData] = useState<CelestialBody[]>([]);
   const [colonyData, setColonyData] = useState<Colony[]>([]);
   const router = useRouter();
@@ -90,8 +97,31 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   const [gameDataLoaded, setGameDataLoaded] = useState(false);
   const [solarSystemLoaded, setSolarSystemLoaded] = useState(false);
   const [colonyDataLoaded, setColonyDataLoaded] = useState(false);
+  const [systemsDataLoaded, setSystemsDataLoaded] = useState(false);
 
   useEffect(() => {
+    const fetchSystems = async () => {
+      try {
+        const response = await fetch('https://rpc.datenleiche.io:5000/api/systems/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if(!response.ok) {
+          throw new Error('Failed to fetch systems');
+        }
+        const data = await response.json();
+        setSystems(data.systems);
+
+        if(data.systems.length > 0) {
+          setSelectedSystem(data.systems[0].SystemID);
+          setSystemsDataLoaded(true);
+        }
+      } catch(error) {
+        console.error('Error fetching systems:', error);
+      }
+    };
+
     const fetchUserData = async () => {
       try {
         const response = await fetch('https://rpc.datenleiche.io:5000/api/protected', {
@@ -132,27 +162,6 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
       }
     };
 
-    const fetchSolarSystem = async () => {
-      try {
-        const systemID = 13355;
-        const response = await fetch(`https://rpc.datenleiche.io:5000/api/solar-system/${systemID}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if(!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const systemData = await response.json();
-        setSolarSystemData(systemData);
-        setSolarSystemLoaded(true);
-      } catch (error) {
-        setError('Error loading System Data');
-        console.error('Error loading System Data', error);
-      }
-    }
-
     const fetchColonyData = async () => {
       try {
         const response = await fetch(`https://rpc.datenleiche.io:5000/api/colonies/`, {
@@ -176,11 +185,39 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
     if (token) {
       fetchUserData();
+      fetchSystems();
       fetchGameData();
-      fetchSolarSystem();
       fetchColonyData();
     }
   }, [token, resolvedParams.gameId, logout]);
+
+  useEffect(() => {
+    const fetchSolarSystem = async () => {
+      if (selectedSystem) {
+        try {
+          const response = await fetch(`https://rpc.datenleiche.io:5000/api/solar-system/${selectedSystem}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+  
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const systemData = await response.json();
+          setSolarSystemData(systemData);
+          setSolarSystemLoaded(true);
+        } catch (error) {
+          setError('Error loading System Data');
+          console.error('Error loading System Data', error);
+        }
+      }
+    };
+  
+    if (selectedSystem) {
+      fetchSolarSystem();
+    }
+  }, [selectedSystem, token]);
 
   if (error) {
     return (
@@ -197,14 +234,19 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
     );
   }
 
-  if (!gameDataLoaded || !solarSystemLoaded || !colonyDataLoaded) {
+  const handleSystemChange = (systemId: number) => {
+    setSelectedSystem(systemId);
+  }
+
+  if (!gameDataLoaded || !solarSystemLoaded || !colonyDataLoaded || !systemsDataLoaded) {
+    console.log("Game Data Loaded: " + gameDataLoaded + " | System Loaded: " + solarSystemLoaded + " | Colony Loaded: " + colonyDataLoaded + " | Systems Data Loaded: " + systemsDataLoaded);
     return <div className="flex items-center justify-center h-screen">Loading game data...</div>;
   }
 
     return (
       <div className="relative">
         <SolarSystem data={solarSystemData}/>
-        <GameUIOverlay colonies={colonyData}/>
+        <GameUIOverlay colonies={colonyData} systems={systems} onSystemChange={handleSystemChange}/>
       </div>
     );
 }

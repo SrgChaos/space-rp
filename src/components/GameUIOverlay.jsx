@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const FloatingWindow = ({ 
   title, 
@@ -77,7 +78,7 @@ const FloatingWindow = ({
   );
 };
 
-const GameUIOverlay = ( {colonies}) => {
+const GameUIOverlay = ( {colonies, systems, onSystemChange }) => {
   const [activeWindows, setActiveWindows] = useState({
     planets: false,
     fleet: false,
@@ -106,6 +107,24 @@ const GameUIOverlay = ( {colonies}) => {
         >
           Colonies
         </Button>
+      </div>
+
+      {/* System Drop Down*/}
+      <div className="absolute top-4 right-4 z-10 pointer-events-auto">
+        <Select onValueChange={(value) => onSystemChange(Number(value))}
+                defaultValue={systems.length > 0 ? systems[0].SystemID.toString() : undefined}
+          >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select a system" />
+          </SelectTrigger>
+          <SelectContent>
+            {systems.map((system) => (
+              <SelectItem key={system.SystemID} value={system.SystemID.toString()}>
+                {system.Name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Floating Windows */}
