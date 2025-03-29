@@ -83,6 +83,14 @@ interface System {
   Name: string;
 }
 
+interface Fleet {
+  FleetName: string;
+  XCor: number;
+  YCor: number;
+  LastXCor: number;
+  LastYCor: number;
+}
+
 export default function GamePage({ params }: { params: Promise<{ gameId: string }> }) {
   const { token, logout } = useAuth();
   const [gameData, setGameData] = useState<GameData | null>(null);
@@ -91,6 +99,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
   const [selectedSystem, setSelectedSystem] = useState<number | null>(null);
   const [solarSystemData, setSolarSystemData] = useState<CelestialBody[]>([]);
   const [colonyData, setColonyData] = useState<Colony[]>([]);
+  const [fleetData, setFleetData] = useState<Fleet[]>([]);
   const router = useRouter();
   const resolvedParams = React.use(params);
 
@@ -213,9 +222,25 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
         }
       }
     };
+
+    const fetchFleets = async () => {
+      try {
+        const response = await fetch(`https://rpc.datenleiche.io:5000/api/solar-system/${selectedSystem}/fleets`, {
+          headers : {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const fleetData = await response.json();
+        setFleetData(fleetData);
+      } catch (error) {
+        setError('Error loading Fleet Data');
+        console.error('Error loading Fleet Data', error);
+      }
+    }
   
     if (selectedSystem) {
       fetchSolarSystem();
+      fetchFleets();
     }
   }, [selectedSystem, token]);
 
@@ -245,7 +270,7 @@ export default function GamePage({ params }: { params: Promise<{ gameId: string 
 
     return (
       <div className="relative">
-        <SolarSystem data={solarSystemData}/>
+        <SolarSystem data={solarSystemData} fleets={fleetData}/>
         <GameUIOverlay colonies={colonyData} systems={systems} onSystemChange={handleSystemChange}/>
       </div>
     );

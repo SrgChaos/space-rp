@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const SolarSystem = ({ data }) => {
+const SolarSystem = ({ data, fleets }) => {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [transform, setTransform] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2, scale: 0.000001 });
@@ -9,6 +9,9 @@ const SolarSystem = ({ data }) => {
 
   // Threshold for showing moons (adjust as needed)
   const MOON_VISIBILITY_THRESHOLD = 0.000005;
+  const FLEET_CLUSTERING_THRESHOLD = 0.00005;
+
+  console.log(fleets);
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +30,36 @@ const SolarSystem = ({ data }) => {
     }, 0);
     return Math.min(dimensions.width, dimensions.height) / (maxDistance * 3);
   };
+
+  const clusterFleets = () => {
+    if (transform.scale >= FLEET_CLUSTERING_THRESHOLD) {
+      return fleets.map(fleet => ({
+        ...fleet,
+        fleetNames: [fleet.FleetName]
+      }));
+    }
+
+    const clusteredFleets = [];
+    const clusterThreshold = 10 / transform.scale
+
+    fleets.forEach(fleet => {
+      const existingCluster = clusteredFleets.find(clusterFleet => 
+        Math.abs(clusterFleet.Xcor - fleet.Xcor) < clusterThreshold &&
+        Math.abs(clusterFleet.Ycor - fleet.Ycor) < clusterThreshold
+      );
+
+      if(existingCluster) {
+        existingCluster.fleetNames.push(fleet.FleetName);
+      } else {
+        clusteredFleets.push({
+          ...fleet,
+          fleetNames: [fleet.FleetName]
+        });
+      }
+    });
+
+    return clusteredFleets;
+  }
 
   useEffect(() => {
     const initialScale = calculateInitialScale();
@@ -189,6 +222,58 @@ const SolarSystem = ({ data }) => {
             ))}
           </g>
         ))}
+
+        {clusterFleets().map((fleet, index) => (
+          <g key={`fleet-${index}`}>
+            <circle
+              cx={transform.x + (fleet.Xcor * transform.scale)}
+              cy={transform.y + (fleet.Ycor * transform.scale)}
+              r={3}
+              fill="white"
+            />
+
+            {fleet.fleetNames.map((name, i) => (
+              <text
+                key={`fleet-name-${index}-${i}`}
+                x={transform.x + (fleet.Xcor * transform.scale)}
+                y={transform.y + (fleet.Ycor * transform.scale) - 15 - (i * 12)} // Stack vertically with 12px spacing
+                fill="white"
+                fontSize={10}
+                textAnchor="middle"
+                className="select-none"
+              >
+                {name}
+              </text>
+            ))}
+
+            {(fleet.Xcor != fleet.LastXcor || fleet.Ycor != fleet.LastYcor) && (
+              <g>
+                <line
+                  x1={transform.x + (fleet.LastXcor * transform.scale)}
+                  y1={transform.y + (fleet.LastYcor * transform.scale)}
+                  x2={transform.x + (fleet.Xcor * transform.scale)}
+                  y2={transform.y + (fleet.Ycor * transform.scale)}
+                  stroke="white"
+                  strokeWidth={1}
+                  markerEnd="url(#arrowhead)"
+                />
+            </g>
+            )}
+          </g>
+        ))}
+
+        <defs>
+          <marker
+            id="arrowhead"
+            markerWidth="10"
+            markerHeight="7"
+            refX="0"
+            refY="3.5"
+            orient="auto"
+          >
+            <polygon points="0 0, 10 3.5, 0 7" fill="white" />
+          </marker>
+        </defs>
       </svg>
     </div>
   );
