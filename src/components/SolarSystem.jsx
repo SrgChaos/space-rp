@@ -9,7 +9,7 @@ const SolarSystem = ({ data, fleets }) => {
 
   // Threshold for showing moons (adjust as needed)
   const MOON_VISIBILITY_THRESHOLD = 0.000005;
-  const FLEET_CLUSTERING_THRESHOLD = 0.00005;
+  const FLEET_CLUSTERING_THRESHOLD = 0.005;
 
   console.log(fleets);
 
